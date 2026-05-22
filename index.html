@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taskamic Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0e0e12;
+    --surface: #18181f;
+    --surface2: #1f1f2a;
+    --surface3: #262633;
+    --accent: #7c6aff;
+    --accent-glow: rgba(124, 106, 255, 0.15);
+    --accent-soft: rgba(124, 106, 255, 0.08);
+    --text: #eaeaf0;
+    --text-secondary: #8888a0;
+    --text-dim: #55556a;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(255, 255, 255, 0.1);
+    --success: #4ade80;
+    --success-bg: rgba(74, 222, 128, 0.1);
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.15);
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Subtle background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -20%, rgba(124, 106, 255, 0.06), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(124, 106, 255, 0.03), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 40px 32px 64px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ───────────────────────── */
+  .header {
+    margin-bottom: 36px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  .header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  .header p {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    padding-bottom: 4px;
+  }
+
+  /* ── Stats Row ────────────────────── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+
+  .stat:hover {
+    border-color: var(--border-hover);
+  }
+
+  .stat:hover::after {
+    opacity: 1;
+  }
+
+  .stat h3 {
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 10px;
+  }
+
+  .stat p {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  /* ── Grid Layout ──────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .full {
+    grid-column: 1 / -1;
+  }
+
+  /* ── Cards ─────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: border-color var(--transition);
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card h2::before {
+    content: '';
+    width: 3px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── Form Controls ────────────────── */
+  .form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  input, select, textarea, button {
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+  }
+
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    transition: border-color var(--transition), background var(--transition);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--text-dim);
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(124, 106, 255, 0.4);
+    background: var(--surface3);
+  }
+
+  input, select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  /* Fix date input icon color */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+    cursor: pointer;
+  }
+
+  /* ── Buttons ──────────────────────── */
+  button {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+
+  button:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  button.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  button.secondary:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+    background: var(--surface2);
+    filter: none;
+  }
+
+  button.done-btn {
+    background: var(--success-bg);
+    color: var(--success);
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
+  button.done-btn:hover {
+    background: rgba(74, 222, 128, 0.18);
+    filter: none;
+  }
+
+  button.delete-btn {
+    background: var(--danger-bg);
+    color: var(--danger);
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
+  button.delete-btn:hover {
+    background: rgba(248, 113, 113, 0.15);
+    filter: none;
+  }
+
+  /* ── List Items ────────────────────── */
+  .item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    transition: all var(--transition);
+    animation: fadeIn 0.25s ease;
+  }
+
+  .item-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .expand-toggle-btn {
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--text-dim);
+    transition: transform var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    user-select: none;
+  }
+
+  .expand-toggle-btn:hover {
+    background: var(--surface3);
+    color: var(--text);
+  }
+
+  .subtask-container {
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .subtask-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px 6px 20px;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+  }
+
+  .subtask-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .subtask-item .done-text {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+
+  .subtask-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    padding-left: 20px;
+  }
+
+  .promote-btn {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(124, 106, 255, 0.2);
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .promote-btn:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .item:hover {
+    border-color: var(--border-hover);
+    background: var(--surface3);
+  }
+
+  .item.done {
+    opacity: 0.5;
+  }
+
+  .item.done .title {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+
+  .title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ── Priority Badges ──────────────── */
+  .priority-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-right: 6px;
+  }
+
+  .priority-badge.high {
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+  }
+
+  .priority-badge.medium {
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+  }
+
+  .priority-badge.low {
+    background: rgba(74, 222, 128, 0.12);
+    color: #4ade80;
+  }
+
+  /* ── Review Section ───────────────── */
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .review-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .review-grid label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Empty States ─────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 28px 16px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+  }
+
+  .empty-state svg {
+    margin-bottom: 10px;
+    opacity: 0.3;
+  }
+
+  /* ── Scrollbar ────────────────────── */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface3);
+    border-radius: 3px;
+  }
+
+  /* ── Responsive ───────────────────── */
+  @media (max-width: 900px) {
+    .container {
+      padding: 24px 16px 48px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+    }
+
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid,
+    .review-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .card {
+      padding: 20px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .header {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 12px;
+    }
+
+    #streakBadgeContainer {
+      margin-left: 0;
+      margin-top: 4px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    #userProfile {
+      margin-left: 0 !important;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      width: 100%;
+    }
+
+    .item-main {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .item-main > div:first-child {
+      width: 100%;
+    }
+
+    .item-main .actions {
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .item-main .actions button {
+      flex: 1;
+      text-align: center;
+      padding: 8px 12px;
+    }
+
+    .subtask-item {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-left: 10px;
+    }
+
+    .subtask-item > div {
+      width: 100%;
+    }
+
+    .subtask-form {
+      flex-direction: column;
+      padding-left: 10px;
+      width: 100%;
+    }
+
+    .subtask-form input {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .stat p {
+      font-size: 28px;
+    }
+
+    .form {
+      flex-direction: column;
+    }
+
+    .form input,
+    .form select {
+      width: 100%;
+    }
+  }
+
+  /* ── Doing Item & Button Styles ───── */
+  .item.doing {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  button.doing-btn {
+    background: rgba(124, 106, 255, 0.08);
+    color: var(--accent);
+    font-size: 12px;
+    padding: 7px 14px;
+    border: 1px solid rgba(124, 106, 255, 0.2);
+  }
+
+  button.doing-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  button.doing-btn:hover {
+    background: rgba(124, 106, 255, 0.15);
+    filter: none;
+  }
+
+  button.doing-btn.active:hover {
+    background: var(--accent);
+    filter: brightness(1.1);
+  }
+
+  /* ── Auth CSS ─────────────────────── */
+  .auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 14, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    animation: fadeInModal 0.4s ease;
+  }
+
+  .auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    padding: 40px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 100px rgba(124, 106, 255, 0.1);
+    position: relative;
+    animation: scaleInModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .auth-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+  }
+
+  .auth-header p {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .auth-tabs {
+    display: flex;
+    background: var(--surface2);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all var(--transition);
+    color: var(--text-secondary);
+  }
+
+  .auth-tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .auth-input-group label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+  }
+
+  .auth-input-group input {
+    width: 100%;
+    padding: 12px 16px;
+  }
+
+  /* ── Toast Notification ────────────── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .toast {
+    background: var(--surface2);
+    border: 1px solid var(--border-hover);
+    border-left: 3px solid #fbbf24;
+    color: var(--text);
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s var(--transition), transform 0.3s var(--transition);
+    pointer-events: auto;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Rollover Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(14, 14, 18, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeInModal 0.3s ease;
+  }
+
+  @keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-content {
+    background: var(--surface);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    padding: 32px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    position: relative;
+    animation: scaleInModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes scaleInModal {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .modal-header h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .modal-header p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .rollover-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 24px;
+    padding-right: 4px;
+  }
+
+  .rollover-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .rollover-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .rollover-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .rollover-btn {
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* Weekly Completion Graph Card & Bars */
+  .graph-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: border-color var(--transition);
+  }
+
+  .graph-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 160px;
+    padding-top: 10px;
+    margin-top: 15px;
+    gap: 8px;
+  }
+
+  .graph-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    position: relative;
+  }
+
+  .graph-bar-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .graph-bar {
+    width: 100%;
+    background: var(--surface2);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1), background var(--transition);
+    position: relative;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    min-height: 4px;
+  }
+
+  .graph-column:hover .graph-bar {
+    background: var(--accent-glow);
+    border-color: rgba(124, 106, 255, 0.4);
+  }
+
+  .graph-bar.active {
+    background: linear-gradient(180deg, var(--accent) 0%, rgba(124, 106, 255, 0.5) 100%);
+    box-shadow: 0 0 12px var(--accent-glow);
+    border-color: var(--accent);
+  }
+
+  .graph-column:hover .graph-bar.active {
+    filter: brightness(1.15);
+  }
+
+  .graph-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .graph-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: var(--surface3);
+    border: 1px solid var(--border-hover);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s var(--transition), transform 0.15s var(--transition);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10;
+  }
+
+  .graph-column:hover .graph-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Streak badge styles */
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.05);
+    transition: transform var(--transition), box-shadow var(--transition);
+    cursor: default;
+    user-select: none;
+    margin-left: 12px;
+  }
+
+  .streak-badge:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+  }
+
+  .streak-badge span {
+    animation: flamePulse 1.5s infinite alternate;
+  }
+
+  @keyframes flamePulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(251,191,36,0.5)); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="mainContainer" style="display: none;">
+  <!-- Header -->
+  <div class="header">
+    <div style="display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap;">
+      <h1>Taskamic</h1>
+      <div id="streakBadgeContainer"></div>
+      <p>Finish what you start.</p>
+    </div>
+    <div id="userProfile" style="margin-left: auto; display: none; align-items: center; gap: 12px;">
+      <button onclick="openFeedbackForm()" style="padding: 8px 14px; font-size: 12px; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; cursor: pointer; transition: all 0.2s;" title="Send us feedback">💬 Feedback</button>
+      <span id="userEmailDisplay" style="font-size: 13px; color: var(--text-secondary); font-weight: 500;"></span>
+      <button onclick="handleSignOut()" class="secondary" style="padding: 6px 12px; font-size: 12px;">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats">
+    <div class="stat">
+      <h3>Daily Tasks</h3>
+      <p id="dailyCount">0</p>
+    </div>
+    <div class="stat">
+      <h3>Weekly Goals</h3>
+      <p id="weeklyCount">0</p>
+    </div>
+    <div class="stat">
+      <h3>Projects</h3>
+      <p id="projectCount">0</p>
+    </div>
+    <div class="stat">
+      <h3>Reviews</h3>
+      <p id="reviewCount">0</p>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="grid">
+    <!-- Daily Tasks -->
+    <section class="card">
+      <h2>Daily Tasks</h2>
+      <div class="form">
+        <input id="dailyInput" placeholder="What needs to be done today?">
+        <button onclick="addItem('daily')">Add</button>
+      </div>
+      <div id="dailyList"></div>
+    </section>
+
+    <!-- Weekly Goals -->
+    <section class="card">
+      <h2>Weekly Goals</h2>
+      <div class="form">
+        <input id="weeklyInput" placeholder="Set a goal for this week">
+        <input id="weeklyDeadline" type="date">
+        <select id="weeklyPriority">
+          <option>High</option>
+          <option selected>Medium</option>
+          <option>Low</option>
+        </select>
+        <button onclick="addItem('weekly')">Add</button>
+      </div>
+      <div id="weeklyList"></div>
+    </section>
+
+    <!-- Ongoing Projects -->
+    <section class="card">
+      <h2>Ongoing Projects</h2>
+      <div class="form">
+        <input id="projectInput" placeholder="Name your project">
+        <input id="projectDeadline" type="date">
+        <button onclick="addItem('project')">Add</button>
+      </div>
+      <div id="projectList"></div>
+    </section>
+
+    <!-- Deadline Tracker -->
+    <section class="card">
+      <h2>Deadline Tracker</h2>
+      <div id="deadlineList"></div>
+    </section>
+
+    <!-- Weekly Activity -->
+    <section class="card">
+      <h2>Weekly Activity</h2>
+      <div class="graph-container" id="weeklyGraph"></div>
+    </section>
+
+    <!-- Daily Review -->
+    <section class="card full">
+      <h2>Daily Review</h2>
+      <div class="review-grid">
+        <div>
+          <label>What did I complete today?</label>
+          <textarea id="reviewWin" placeholder="List your wins…"></textarea>
+        </div>
+        <div>
+          <label>What distracted me?</label>
+          <textarea id="reviewBlock" placeholder="Be honest with yourself…"></textarea>
+        </div>
+        <div>
+          <label>Tomorrow's #1 Task</label>
+          <textarea id="reviewTomorrow" placeholder="The one thing that matters most…"></textarea>
+        </div>
+      </div>
+      <div class="review-actions">
+        <button onclick="saveReview()">Save Review</button>
+        <button class="secondary" onclick="downloadReviews()">Download All Reviews (CSV)</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; flex-items: center; justify-content: center;">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; max-width: 500px; width: 90%; margin: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text);">Share Your Feedback</h2>
+    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">Help us improve Taskamic. What would you like to see or change?</p>
+    
+    <textarea id="feedbackText" placeholder="Type your feedback here..." style="width: 100%; min-height: 150px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 12px 14px; font-family: inherit; font-size: 14px; resize: vertical; margin-bottom: 16px;" required></textarea>
+    
+    <div style="display: flex; gap: 10px;">
+      <button onclick="sendFeedback()" style="flex: 1; background: var(--accent); color: white; padding: 12px 20px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Send Feedback</button>
+      <button onclick="closeFeedbackForm()" style="flex: 1; background: var(--surface3); color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Container (Sleek Glassmorphic Overlay) -->
+<div id="authOverlay" class="auth-overlay" style="display: flex;">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Taskamic</h2>
+      <p id="authSubtitle">Sign in to sync your focus dashboard</p>
+    </div>
+    
+    <!-- Error Display -->
+    <div id="authError" style="display: none; background: #fee; color: #c33; padding: 10px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 13px; border-left: 3px solid #c33;"></div>
+    
+    <div class="auth-tabs">
+      <div id="tabSignIn" class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</div>
+      <div id="tabSignUp" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    
+    <form id="authForm" onsubmit="handleAuthSubmit(event)">
+      <div class="auth-input-group">
+        <label for="authEmail">Email Address</label>
+        <input type="email" id="authEmail" required placeholder="you@example.com">
+      </div>
+      
+      <div class="auth-input-group">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" required placeholder="••••••••">
+      </div>
+      
+      <button type="submit" id="authSubmitBtn" style="width: 100%; margin-top: 10px; padding: 12px;">Sign In</button>
+    </form>
+
+    <!-- Divider -->
+    <div style="text-align: center; margin: 16px 0; font-size: 12px; color: var(--text-dim);">OR</div>
+    
+    <!-- Google Sign-In Button -->
+    <button id="googleSignInBtn" type="button" onclick="handleGoogleSignIn()" style="width: 100%; padding: 12px; background: #fff; color: #1a1a1a; border: 1px solid #ddd; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all var(--transition);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="1"/><path d="M12 1v6m0 6v6"/>
+      </svg>
+      Sign in with Google
+    </button>
+  </div>
+</div>
+
+<!-- Global Functions for Feedback Form -->
+<script>
+// ──── Feedback Form Functions (Global Scope) ────
+function openFeedbackForm() {
+  const modal = document.getElementById('feedbackModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeFeedbackForm() {
+  const modal = document.getElementById('feedbackModal');
+  if (modal) {
+    modal.style.display = 'none';
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
+    // Clear the feedback text
+    const feedbackText = document.getElementById('feedbackText');
+    if (feedbackText) feedbackText.value = '';
+  }
+}
+
+async function sendFeedback() {
+  const feedbackText = document.getElementById('feedbackText');
+  const userEmail = window.currentUser ? window.currentUser.email : 'anonymous@user.com';
+  const userName = window.currentUser ? (window.currentUser.displayName || userEmail) : 'Anonymous User';
+  
+  if (!feedbackText || feedbackText.value.trim() === '') {
+    window.showToast && window.showToast('Please write some feedback before sending.');
+    return;
+  }
+
+  const feedbackMessage = feedbackText.value;
+  const sendBtn = event.target;
+  const originalText = sendBtn.textContent;
+  
+  // Show sending status
+  sendBtn.textContent = 'Sending...';
+  sendBtn.disabled = true;
+
+  try {
+    // Send feedback to backend
+    const response = await fetch('http://localhost:3000/api/submit-feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        feedbackMessage: feedbackMessage,
+        userEmail: userEmail,
+        userName: userName
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Success - show message and close modal
+      window.showToast && window.showToast('✅ ' + data.message);
+      console.log('Feedback submitted successfully:', {
+        from: userEmail,
+        name: userName,
+        message: feedbackMessage,
+        timestamp: new Date().toISOString()
+      });
+      closeFeedbackForm();
+    } else {
+      // Error from backend
+      window.showToast && window.showToast('❌ ' + (data.message || 'Failed to send feedback'));
+      console.error('Backend error:', data.message);
+    }
+  } catch (error) {
+    console.error('Error sending feedback:', error);
+    
+    // Check if backend is running
+    if (error.message.includes('Failed to fetch')) {
+      window.showToast && window.showToast('❌ Backend server not running. Is Node.js backend started?');
+    } else {
+      window.showToast && window.showToast('❌ Error sending feedback: ' + error.message);
+    }
+  } finally {
+    sendBtn.textContent = originalText;
+    sendBtn.disabled = false;
+  }
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const STORAGE_KEY = 'focusOS_clean';
+const CONFIG_STORAGE_KEY = 'focusOS_firebase_config';
+
+// Firebase Config (from .env)
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDH89Np1MSzs8qmPBeRiXN2ncUUkv6Tgg0",
+  authDomain: "focusos-fa5c9.firebaseapp.com",
+  projectId: "focusos-fa5c9",
+  storageBucket: "focusos-fa5c9.firebasestorage.app",
+  messagingSenderId: "239530972421",
+  appId: "1:239530972421:web:7e1e26827562ad73ed536c"
+};
+
+// DOM Element cache
+const dailyInput = document.getElementById('dailyInput');
+const weeklyInput = document.getElementById('weeklyInput');
+const weeklyDeadline = document.getElementById('weeklyDeadline');
+const weeklyPriority = document.getElementById('weeklyPriority');
+const projectInput = document.getElementById('projectInput');
+const projectDeadline = document.getElementById('projectDeadline');
+const reviewWin = document.getElementById('reviewWin');
+const reviewBlock = document.getElementById('reviewBlock');
+const reviewTomorrow = document.getElementById('reviewTomorrow');
+const deadlineList = document.getElementById('deadlineList');
+const dailyCount = document.getElementById('dailyCount');
+const weeklyCount = document.getElementById('weeklyCount');
+const projectCount = document.getElementById('projectCount');
+const reviewCount = document.getElementById('reviewCount');
+
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+  daily: [], weekly: [], project: [], reviews: []
+};
+
+let currentUser = null;
+let db = null;
+let auth = null;
+let saveRetryCount = {}; // Track retry attempts per save
+
+// State migrations & upgrades
+function runMigrations() {
+  if (!state.lastActiveDate) {
+    state.lastActiveDate = new Date().toISOString().slice(0, 10);
+  }
+  state.daily = state.daily || [];
+  state.weekly = state.weekly || [];
+  state.project = state.project || [];
+  state.reviews = state.reviews || [];
+
+  state.daily.forEach(item => {
+    if (!item.createdAt) item.createdAt = item.id;
+    if (item.done && !item.completedAt) {
+      item.completedAt = new Date(item.id).toISOString().slice(0, 10);
+    }
+  });
+  state.weekly.forEach(item => {
+    if (!item.subtasks) item.subtasks = [];
+  });
+  state.project.forEach(item => {
+    if (!item.subtasks) item.subtasks = [];
+  });
+}
+
+// Form validation
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function validatePassword(password) {
+  return password.length >= 6; // Firebase minimum
+}
+
+function showAuthError(message) {
+  const errorEl = document.getElementById('authError');
+  if (errorEl) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = message;
+    setTimeout(() => {
+      errorEl.style.display = 'none';
+    }, 5000);
+  }
+}
+
+// Set up UI visibility based on state
+function updateAuthUI(user) {
+  const authOverlay = document.getElementById('authOverlay');
+  const mainContainer = document.getElementById('mainContainer');
+  const userProfile = document.getElementById('userProfile');
+  const userEmailDisplay = document.getElementById('userEmailDisplay');
+
+  if (user) {
+    if (authOverlay) authOverlay.style.display = 'none';
+    if (mainContainer) mainContainer.style.display = 'block';
+    if (userProfile) userProfile.style.display = 'flex';
+    if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+  } else {
+    if (authOverlay) authOverlay.style.display = 'flex';
+    if (mainContainer) mainContainer.style.display = 'none';
+    if (userProfile) userProfile.style.display = 'none';
+  }
+}
+
+// Load data from Firestore
+async function loadStateFromFirestore(uid) {
+  try {
+    const userDocRef = doc(db, 'userData', uid);
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      state.daily = data.daily || [];
+      state.weekly = data.weekly || [];
+      state.project = data.project || [];
+      state.reviews = data.reviews || [];
+      state.lastActiveDate = data.lastActiveDate || new Date().toISOString().slice(0, 10);
+    } else {
+      await saveStateToFirestore(uid);
+    }
+    runMigrations();
+    render();
+    checkDailyRollover();
+  } catch (err) {
+    console.error("Error loading state from Firestore:", err);
+    showToast("Error loading synced tasks. Using local cache.");
+    loadLocalState();
+    runMigrations();
+    render();
+    checkDailyRollover();
+  }
+}
+
+// Retry logic for Firestore saves
+async function saveStateToFirestore(uid, retryCount = 0) {
+  if (!uid || !db) return;
+  const maxRetries = 3;
+  const baseDelay = 1000; // 1 second
+  
+  // Ensure lastActiveDate is always set
+  if (!state.lastActiveDate) {
+    state.lastActiveDate = new Date().toISOString().slice(0, 10);
+  }
+  
+  try {
+    const userDocRef = doc(db, 'userData', uid);
+    await setDoc(userDocRef, {
+      daily: state.daily || [],
+      weekly: state.weekly || [],
+      project: state.project || [],
+      reviews: state.reviews || [],
+      lastActiveDate: state.lastActiveDate || new Date().toISOString().slice(0, 10)
+    });
+    saveRetryCount[uid] = 0; // Reset on success
+  } catch (err) {
+    console.error("Error saving state to Firestore:", err);
+    
+    if (retryCount < maxRetries) {
+      const delay = baseDelay * Math.pow(2, retryCount); // Exponential backoff
+      console.log(`Retrying Firestore save in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
+      setTimeout(() => {
+        saveStateToFirestore(uid, retryCount + 1);
+      }, delay);
+    } else {
+      showToast("Warning: Could not sync to cloud. Data saved locally.");
+    }
+  }
+}
+
+function loadLocalState() {
+  const localData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (localData) {
+    state = localData;
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  render();
+  if (currentUser) {
+    saveStateToFirestore(currentUser.uid);
+  }
+}
+
+function addItem(type) {
+  if (type === 'daily') {
+    const text = dailyInput.value.trim();
+    if (!text) return;
+    state.daily.push({ 
+      id: Date.now(), 
+      text, 
+      done: false, 
+      createdAt: Date.now(), 
+      completedAt: null 
+    });
+    dailyInput.value = '';
+  }
+  if (type === 'weekly') {
+    const text = weeklyInput.value.trim();
+    if (!text) return;
+    state.weekly.push({
+      id: Date.now(),
+      text,
+      deadline: weeklyDeadline.value,
+      priority: weeklyPriority.value,
+      done: false,
+      subtasks: []
+    });
+    weeklyInput.value = '';
+    weeklyDeadline.value = '';
+  }
+  if (type === 'project') {
+    const text = projectInput.value.trim();
+    if (!text) return;
+    state.project.push({
+      id: Date.now(),
+      text,
+      deadline: projectDeadline.value,
+      done: false,
+      subtasks: []
+    });
+    projectInput.value = '';
+    projectDeadline.value = '';
+  }
+  saveState();
+}
+
+function toggle(type, id) {
+  const item = state[type].find(i => i.id === id);
+  if (item) {
+    item.done = !item.done;
+    if (item.done) {
+      if (type === 'daily') {
+        item.doing = false;
+        item.completedAt = new Date().toISOString().slice(0, 10);
+      }
+    } else {
+      if (type === 'daily') {
+        item.completedAt = null;
+      }
+    }
+  }
+  saveState();
+}
+
+// Inline editing functions
+let isEditing = false;
+function startEdit(type, id, el) {
+  if (isEditing) return;
+  isEditing = true;
+  const originalText = el.innerText;
+  el.innerHTML = `<input type="text" class="edit-inline-input" value="${escapeHtml(originalText)}" style="width:100%; font-size: inherit; font-family: inherit; padding: 4px 8px; border-radius: var(--radius-sm); border: 1px solid var(--accent); background: var(--surface3); color: var(--text);">`;
+  const input = el.querySelector('input');
+  input.focus();
+  input.select();
+
+  const saveEdit = () => {
+    const newVal = input.value.trim();
+    if (newVal && newVal !== originalText) {
+      const item = state[type].find(i => i.id === id);
+      if (item) {
+        item.text = newVal;
+        saveState();
+      }
+    } else {
+      el.innerText = originalText;
+    }
+    isEditing = false;
+  };
+
+  input.addEventListener('blur', saveEdit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      input.blur();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      input.value = originalText;
+      input.blur();
+    }
+  });
+}
+
+function toggleDoing(id) {
+  const item = state.daily.find(i => i.id === id);
+  if (!item) return;
+
+  if (item.doing) {
+    item.doing = false;
+  } else {
+    const doingCount = state.daily.filter(i => i.doing).length;
+    if (doingCount >= 2) {
+      showToast('You can only focus on 2 daily tasks at a time. Keep it simple!');
+      return;
+    }
+    item.doing = true;
+    item.done = false;
+  }
+  saveState();
+}
+
+function showToast(message) {
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <span>${message}</span>
+  `;
+  container.appendChild(toast);
+
+  setTimeout(() => toast.classList.add('show'), 10);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.addEventListener('transitionend', () => toast.remove());
+  }, 4000);
+}
+
+function removeItem(type, id) {
+  state[type] = state[type].filter(i => i.id !== id);
+  saveState();
+}
+
+const expandedItems = {};
+const activeTimers = {};
+
+function toggleExpand(id) {
+  expandedItems[id] = !expandedItems[id];
+  render();
+}
+
+function promoteToDaily(type, id) {
+  const item = state[type].find(i => i.id === id);
+  if (!item) return;
+  state.daily.push({
+    id: Date.now(),
+    text: item.text,
+    done: false,
+    createdAt: Date.now(),
+    completedAt: null
+  });
+  saveState();
+  showToast(`Promoted "${item.text}" to Daily Tasks!`);
+}
+
+function addSubtask(itemId, type) {
+  const input = document.getElementById(`subtask-input-${itemId}`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const item = state[type].find(i => i.id === itemId);
+  if (item) {
+    if (!item.subtasks) item.subtasks = [];
+    item.subtasks.push({
+      id: Date.now(),
+      text,
+      done: false
+    });
+    saveState();
+  }
+}
+
+function toggleSubtask(itemId, subId, type) {
+  const item = state[type].find(i => i.id === itemId);
+  if (item && item.subtasks) {
+    const sub = item.subtasks.find(s => s.id === subId);
+    if (sub) {
+      sub.done = !sub.done;
+      saveState();
+    }
+  }
+}
+
+function deleteSubtask(itemId, subId, type) {
+  const item = state[type].find(i => i.id === itemId);
+  if (item && item.subtasks) {
+    item.subtasks = item.subtasks.filter(s => s.id !== subId);
+    saveState();
+  }
+}
+
+function promoteSubtaskToDaily(itemId, subId, type) {
+  const item = state[type].find(i => i.id === itemId);
+  if (item && item.subtasks) {
+    const sub = item.subtasks.find(s => s.id === subId);
+    if (sub) {
+      state.daily.push({
+        id: Date.now(),
+        text: `${item.text}: ${sub.text}`,
+        done: false,
+        createdAt: Date.now(),
+        completedAt: null
+      });
+      saveState();
+      showToast(`Promoted subtask to Daily Tasks!`);
+    }
+  }
+}
+
+function startEditSubtask(type, itemId, subId, el) {
+  if (isEditing) return;
+  isEditing = true;
+  const originalText = el.innerText;
+  el.innerHTML = `<input type="text" class="edit-inline-input" value="${escapeHtml(originalText)}" style="font-size: inherit; font-family: inherit; padding: 2px 6px; border-radius: var(--radius-sm); border: 1px solid var(--accent); background: var(--surface3); color: var(--text);">`;
+  const input = el.querySelector('input');
+  input.focus();
+  input.select();
+
+  const saveEdit = () => {
+    const newVal = input.value.trim();
+    if (newVal && newVal !== originalText) {
+      const item = state[type].find(i => i.id === itemId);
+      if (item && item.subtasks) {
+        const sub = item.subtasks.find(s => s.id === subId);
+        if (sub) {
+          sub.text = newVal;
+          saveState();
+        }
+      }
+    } else {
+      el.innerText = originalText;
+    }
+    isEditing = false;
+  };
+
+  input.addEventListener('blur', saveEdit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      input.blur();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      input.value = originalText;
+      input.blur();
+    }
+  });
+}
+
+function toggleTimer(id) {
+  if (!activeTimers[id]) {
+    activeTimers[id] = { secondsLeft: 1500, intervalId: null, isRunning: false };
+  }
+  const timer = activeTimers[id];
+  if (timer.isRunning) {
+    clearInterval(timer.intervalId);
+    timer.intervalId = null;
+    timer.isRunning = false;
+    render();
+  } else {
+    timer.isRunning = true;
+    timer.intervalId = setInterval(() => {
+      timer.secondsLeft--;
+      if (timer.secondsLeft <= 0) {
+        clearInterval(timer.intervalId);
+        timer.intervalId = null;
+        timer.isRunning = false;
+        timer.secondsLeft = 0;
+        playBeep();
+        showToast(`Focus time complete for: "${state.daily.find(i => i.id === id)?.text || 'your task'}"!`);
+      }
+      const display = document.querySelector(`#timer-${id} .timer-display`);
+      if (display) {
+        const m = Math.floor(timer.secondsLeft / 60).toString().padStart(2, '0');
+        const s = (timer.secondsLeft % 60).toString().padStart(2, '0');
+        display.textContent = `${m}:${s}`;
+      } else {
+        clearInterval(timer.intervalId);
+        timer.intervalId = null;
+        timer.isRunning = false;
+      }
+    }, 1000);
+    render();
+  }
+}
+
+function resetTimer(id) {
+  if (activeTimers[id]) {
+    clearInterval(activeTimers[id].intervalId);
+  }
+  activeTimers[id] = { secondsLeft: 1500, intervalId: null, isRunning: false };
+  render();
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    osc.start();
+    setTimeout(() => {
+      osc.stop();
+      ctx.close();
+    }, 500);
+  } catch (e) {
+    console.error("Audio playback failed:", e);
+  }
+}
+
+function renderList(type, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  if (state[type].length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        <div>Nothing here yet. Add your first item above.</div>
+      </div>`;
+    return;
+  }
+  state[type].forEach(item => {
+    const div = document.createElement('div');
+    let classes = ['item'];
+    if (item.done) classes.push('done');
+    if (type === 'daily' && item.doing) classes.push('doing');
+    div.className = classes.join(' ');
+
+    let metaParts = [];
+    if (item.priority) {
+      const cls = item.priority.toLowerCase();
+      metaParts.push(`<span class="priority-badge ${cls}">${item.priority}</span>`);
+    }
+    if (item.deadline) {
+      metaParts.push(item.deadline);
+    }
+    if (type === 'daily' && item.doing) {
+      metaParts.push(`<span class="priority-badge" style="background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(124, 106, 255, 0.3)">In Progress</span>`);
+    }
+
+    let timerHtml = '';
+    if (type === 'daily' && item.doing) {
+      if (!activeTimers[item.id]) {
+        activeTimers[item.id] = { secondsLeft: 1500, intervalId: null, isRunning: false };
+      }
+      const t = activeTimers[item.id];
+      const m = Math.floor(t.secondsLeft / 60).toString().padStart(2, '0');
+      const s = (t.secondsLeft % 60).toString().padStart(2, '0');
+      timerHtml = `
+        <div class="pomodoro-timer" id="timer-${item.id}" style="display:flex; align-items:center; gap:8px; margin-top:6px; background:rgba(124, 106, 255, 0.05); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid rgba(124, 106, 255, 0.15); width: fit-content;">
+          <span class="timer-display" style="font-family: monospace; font-size: 13px; font-weight: 700; color: var(--accent); min-width: 42px;">${m}:${s}</span>
+          <button class="timer-play-btn" onclick="toggleTimer(${item.id}); event.stopPropagation();" style="padding: 2px 8px; font-size: 10px; background: var(--accent); border-radius:4px; font-weight:600; cursor:pointer;">${t.isRunning ? 'Pause' : 'Play'}</button>
+          <button class="timer-reset-btn" onclick="resetTimer(${item.id}); event.stopPropagation();" style="padding: 2px 8px; font-size: 10px; background: transparent; border: 1px solid var(--border); color: var(--text-secondary); border-radius:4px; font-weight:500; cursor:pointer;">Reset</button>
+        </div>
+      `;
+    }
+
+    let subtaskHtml = '';
+    const isExpanded = expandedItems[item.id];
+    if ((type === 'weekly' || type === 'project') && isExpanded) {
+      const subtasksList = (item.subtasks || []).map(sub => `
+        <div class="subtask-item">
+          <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+            <input type="checkbox" ${sub.done ? 'checked' : ''} onchange="toggleSubtask(${item.id}, ${sub.id}, '${type}')" style="cursor:pointer; flex:none;">
+            <span class="${sub.done ? 'done-text' : ''}" ondblclick="startEditSubtask('${type}', ${item.id}, ${sub.id}, this)" style="cursor:pointer; font-size:13px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; flex:1;">${escapeHtml(sub.text)}</span>
+          </div>
+          <div style="display:flex; gap:6px; flex-shrink:0;">
+            <button class="promote-btn" onclick="promoteSubtaskToDaily(${item.id}, ${sub.id}, '${type}')" style="cursor:pointer;">+ Today</button>
+            <button class="delete-btn" style="font-size: 10px; padding: 3px 8px; cursor:pointer;" onclick="deleteSubtask(${item.id}, ${sub.id}, '${type}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+
+      subtaskHtml = `
+        <div class="subtask-container">
+          ${subtasksList || '<div style="font-size: 12px; color: var(--text-dim); padding-left: 20px;">No subtasks yet.</div>'}
+          <div class="subtask-form">
+            <input id="subtask-input-${item.id}" placeholder="Add a subtask..." style="font-size:12px; padding: 6px 10px; flex:1;" onkeydown="if(event.key === 'Enter') addSubtask(${item.id}, '${type}')">
+            <button onclick="addSubtask(${item.id}, '${type}')" style="font-size:11px; padding: 6px 12px; cursor:pointer;">Add</button>
+          </div>
+        </div>
+      `;
+    }
+
+    div.innerHTML = `
+      <div class="item-main">
+        <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+          ${(type === 'weekly' || type === 'project') ? `
+            <span class="expand-toggle-btn" onclick="toggleExpand(${item.id})" style="transform: ${isExpanded ? 'rotate(90deg)' : 'rotate(0)'}">▶</span>
+          ` : ''}
+          <div style="flex:1; min-width:0;">
+            <div class="title" ondblclick="startEdit('${type}', ${item.id}, this)" title="Double click to edit" style="cursor:pointer; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${escapeHtml(item.text)}</div>
+            <div class="meta">${metaParts.join(' ')}</div>
+            ${timerHtml}
+          </div>
+        </div>
+        <div class="actions" style="flex-shrink:0;">
+          ${(type === 'weekly' || type === 'project') ? `
+            <button class="promote-btn" onclick="promoteToDaily('${type}', ${item.id})" title="Promote to Daily Task" style="cursor:pointer;">+ Today</button>
+          ` : ''}
+          ${type === 'daily' && !item.done ? `
+            <button class="doing-btn ${item.doing ? 'active' : ''}" onclick="toggleDoing(${item.id})" style="cursor:pointer;">
+              Doing
+            </button>
+          ` : ''}
+          <button class="done-btn" onclick="toggle('${type}', ${item.id})" style="cursor:pointer;">${item.done ? 'Undo' : 'Done'}</button>
+          <button class="delete-btn" onclick="removeItem('${type}', ${item.id})" style="cursor:pointer;">Delete</button>
+        </div>
+      </div>
+      ${subtaskHtml}
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderDeadlines() {
+  const all = [...state.weekly, ...state.project].filter(i => i.deadline);
+  all.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+  if (all.length === 0) {
+    deadlineList.innerHTML = `
+      <div class="empty-state">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <div>No deadlines tracked yet.</div>
+      </div>`;
+    return;
+  }
+
+  deadlineList.innerHTML = all.map(i => {
+    const today = new Date();
+    const deadline = new Date(i.deadline);
+    const diffDays = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+    let urgency = '';
+    if (diffDays < 0) urgency = ' — <span style="color:var(--danger)">Overdue</span>';
+    else if (diffDays <= 2) urgency = ' — <span style="color:#fbbf24">Due soon</span>';
+
+    return `
+      <div class="item">
+        <div>
+          <div class="title">${escapeHtml(i.text)}</div>
+          <div class="meta">${i.deadline}${urgency}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function saveReview() {
+  const today = new Date().toISOString().slice(0, 10);
+  const review = {
+    date: today,
+    completed: reviewWin.value.trim(),
+    distractions: reviewBlock.value.trim(),
+    tomorrow: reviewTomorrow.value.trim()
+  };
+  if (!review.completed && !review.distractions && !review.tomorrow) {
+    alert('Please write something before saving.');
+    return;
+  }
+  const existingIndex = state.reviews.findIndex(r => r.date === today);
+  if (existingIndex >= 0) {
+    state.reviews[existingIndex] = review;
+  } else {
+    state.reviews.push(review);
+  }
+  saveState();
+  alert('Review saved successfully.');
+}
+
+function downloadReviews() {
+  if (state.reviews.length === 0) {
+    alert('No reviews found.');
+    return;
+  }
+  const headers = ['Date', 'Completed Today', 'Distractions', 'Tomorrow Main Task'];
+  const rows = state.reviews.map(r => [
+    r.date,
+    r.completed,
+    r.distractions,
+    r.tomorrow
+  ]);
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => '"' + String(cell || '').replace(/"/g, '""') + '"').join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'daily_reviews.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
+
+// Allow adding items by pressing Enter
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (e.target.id === 'dailyInput') addItem('daily');
+    if (e.target.id === 'weeklyInput') addItem('weekly');
+    if (e.target.id === 'projectInput') addItem('project');
+  }
+});
+
+function checkDailyRollover() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  
+  if (state.lastActiveDate && state.lastActiveDate !== todayStr) {
+    const yesterdayTasks = state.daily.filter(item => {
+      if (item.done) return false;
+      const createdDateStr = new Date(item.createdAt || item.id).toISOString().slice(0, 10);
+      return createdDateStr < todayStr;
+    });
+
+    if (yesterdayTasks.length > 0) {
+      showRolloverModal(yesterdayTasks);
+      return;
+    }
+  }
+  state.lastActiveDate = todayStr;
+  saveState();
+}
+
+function showRolloverModal(tasks) {
+  const existing = document.getElementById('rolloverModal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'rolloverModal';
+  overlay.className = 'modal-overlay';
+
+  let currentTasks = [...tasks];
+
+  const updateModalContent = () => {
+    if (currentTasks.length === 0) {
+      closeRolloverModal();
+      return;
+    }
+
+    const itemsHtml = currentTasks.map(task => `
+      <div class="rollover-item" id="rollover-task-${task.id}">
+        <div class="rollover-title">${escapeHtml(task.text)}</div>
+        <div class="rollover-actions">
+          <button class="rollover-btn" onclick="handleRolloverAction(${task.id}, 'keep')" style="background: var(--accent); color: white; border: none; cursor:pointer;">Keep Today</button>
+          <button class="rollover-btn secondary" onclick="handleRolloverAction(${task.id}, 'weekly')" style="cursor:pointer;">To Weekly</button>
+          <button class="rollover-btn" style="background: var(--danger-bg); color: var(--danger); border: none; cursor:pointer;" onclick="handleRolloverAction(${task.id}, 'discard')">Discard</button>
+        </div>
+      </div>
+    `).join('');
+
+    overlay.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🌅 Yesterday's Carryover</h2>
+          <p>You have unfinished daily tasks from yesterday. What would you like to do with them?</p>
+        </div>
+        <div class="rollover-list">
+          ${itemsHtml}
+        </div>
+        <div class="modal-footer">
+          <button class="secondary" onclick="handleRolloverAll('discard')" style="color: var(--danger); border-color: rgba(248, 113, 113, 0.2); cursor:pointer;">Discard All</button>
+          <button class="secondary" onclick="handleRolloverAll('weekly')" style="cursor:pointer;">Move All to Weekly</button>
+          <button onclick="handleRolloverAll('keep')" style="background: var(--accent); color: white; border-radius: var(--radius-sm); border: none; cursor:pointer; font-weight: 600; padding: 11px 20px;">Keep All for Today</button>
+        </div>
+      </div>
+    `;
+  };
+
+  window.handleRolloverAction = (taskId, action) => {
+    const task = state.daily.find(t => t.id === taskId);
+    if (!task) return;
+
+    if (action === 'keep') {
+      task.createdAt = Date.now();
+    } else if (action === 'weekly') {
+      state.daily = state.daily.filter(t => t.id !== taskId);
+      state.weekly.push({
+        id: Date.now(),
+        text: task.text,
+        done: false,
+        priority: 'Medium',
+        subtasks: []
+      });
+    } else if (action === 'discard') {
+      state.daily = state.daily.filter(t => t.id !== taskId);
+    }
+
+    currentTasks = currentTasks.filter(t => t.id !== taskId);
+    saveState();
+    updateModalContent();
+  };
+
+  window.handleRolloverAll = (action) => {
+    const tasksToProcess = [...currentTasks];
+    tasksToProcess.forEach(task => {
+      window.handleRolloverAction(task.id, action);
+    });
+  };
+
+  window.closeRolloverModal = () => {
+    overlay.remove();
+    state.lastActiveDate = new Date().toISOString().slice(0, 10);
+    saveState();
+    delete window.handleRolloverAction;
+    delete window.handleRolloverAll;
+    delete window.closeRolloverModal;
+  };
+
+  updateModalContent();
+  document.body.appendChild(overlay);
+}
+
+function renderWeeklyGraph() {
+  const graph = document.getElementById('weeklyGraph');
+  if (!graph) return;
+
+  const days = [];
+  const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push({
+      dateStr: d.toISOString().slice(0, 10),
+      label: weekdayNames[d.getDay()],
+      isToday: i === 0
+    });
+  }
+
+  const dailyCompletedCounts = days.map(day => {
+    return (state.daily || []).filter(item => {
+      return item.done && item.completedAt === day.dateStr;
+    }).length;
+  });
+
+  const maxCount = Math.max(...dailyCompletedCounts, 4);
+
+  graph.innerHTML = days.map((day, idx) => {
+    const count = dailyCompletedCounts[idx];
+    const heightPercent = Math.min((count / maxCount) * 100, 100);
+    const activeClass = count > 0 ? 'active' : '';
+    const tooltipText = `${count} task${count === 1 ? '' : 's'} completed`;
+
+    return `
+      <div class="graph-column">
+        <div class="graph-tooltip">${tooltipText}</div>
+        <div class="graph-bar-wrapper">
+          <div class="graph-bar ${activeClass}" style="height: ${heightPercent}%;"></div>
+        </div>
+        <div class="graph-label" style="${day.isToday ? 'color: var(--accent); font-weight: 700;' : ''}">${day.label}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Streak Badge
+function renderStreakBadge() {
+  const container = document.getElementById('streakBadgeContainer');
+  if (!container) return;
+
+  const uniqueDates = [...new Set((state.reviews || []).map(r => r.date))]
+    .filter(Boolean)
+    .sort((a, b) => new Date(b) - new Date(a));
+
+  if (uniqueDates.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+  const latestDate = uniqueDates[0];
+  if (latestDate !== todayStr && latestDate !== yesterdayStr) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let streak = 0;
+  let currentDate = new Date(latestDate);
+
+  for (let i = 0; i < uniqueDates.length; i++) {
+    const reviewDateStr = uniqueDates[i];
+    const expectedDateStr = currentDate.toISOString().slice(0, 10);
+
+    if (reviewDateStr === expectedDateStr) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  if (streak > 0) {
+    container.innerHTML = `
+      <div class="streak-badge" title="You completed your daily review ${streak} days in a row!">
+        <span>🔥</span> ${streak}-Day Review Streak
+      </div>
+    `;
+  } else {
+    container.innerHTML = '';
+  }
+}
+
+// Main Render
+function render() {
+  renderList('daily', 'dailyList');
+  renderList('weekly', 'weeklyList');
+  renderList('project', 'projectList');
+  renderDeadlines();
+  renderWeeklyGraph();
+  renderStreakBadge();
+  dailyCount.textContent = state.daily.length;
+  weeklyCount.textContent = state.weekly.length;
+  projectCount.textContent = state.project.length;
+  reviewCount.textContent = state.reviews.length;
+}
+
+
+
+// Tab Switcher
+function switchAuthTab(tab) {
+  const signInTab = document.getElementById('tabSignIn');
+  const signUpTab = document.getElementById('tabSignUp');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  const subtitle = document.getElementById('authSubtitle');
+  
+  if (tab === 'signin') {
+    signInTab.classList.add('active');
+    signUpTab.classList.remove('active');
+    submitBtn.textContent = 'Sign In';
+    subtitle.textContent = 'Sign in to sync your focus dashboard';
+  } else {
+    signUpTab.classList.add('active');
+    signInTab.classList.remove('active');
+    submitBtn.textContent = 'Create Account';
+    subtitle.textContent = 'Create a new account to save your dashboard';
+  }
+}
+
+// Check and enforce user signup limit (50 users max)
+async function checkAndIncrementUserCount() {
+  if (!db) {
+    console.error("Firestore not initialized");
+    return false;
+  }
+  
+  try {
+    // Get current user count from config document
+    const configRef = doc(db, 'config', 'userStats');
+    const configDoc = await getDoc(configRef);
+    
+    let currentCount = 0;
+    if (configDoc.exists()) {
+      currentCount = configDoc.data().totalUsers || 0;
+    }
+    
+    // Check if limit (50 users) is reached
+    if (currentCount >= 50) {
+      return false; // Limit reached
+    }
+    
+    // Increment the counter
+    await setDoc(configRef, { totalUsers: currentCount + 1 }, { merge: true });
+    return true; // Success, user can sign up
+  } catch (err) {
+    console.error("Error checking user count:", err);
+    return true; // Allow signup if there's an error checking the limit
+  }
+}
+
+// Submit Auth - Email/Password
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  if (!auth) {
+    showAuthError("Firebase not initialized. Please refresh the page.");
+    return;
+  }
+  
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const isSignIn = document.getElementById('tabSignIn').classList.contains('active');
+  
+  // Validation
+  if (!validateEmail(email)) {
+    showAuthError("Please enter a valid email address.");
+    return;
+  }
+  
+  if (!validatePassword(password)) {
+    showAuthError(isSignIn ? "Please enter your password." : "Password must be at least 6 characters.");
+    return;
+  }
+  
+  const submitBtn = document.getElementById('authSubmitBtn');
+  const originalBtnText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = isSignIn ? 'Signing In...' : 'Registering...';
+  
+  try {
+    if (isSignIn) {
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast("Welcome back!");
+    } else {
+      // Check user signup limit before creating account
+      const canSignUp = await checkAndIncrementUserCount();
+      if (!canSignUp) {
+        showAuthError("Sorry, we don't have any slots available. Already 50 users have joined with us!");
+        return;
+      }
+      
+      await createUserWithEmailAndPassword(auth, email, password);
+      showToast("Account created successfully!");
+    }
+  } catch (err) {
+    console.error("Auth error:", err);
+    let errorMsg = err.message;
+    if (err.code === 'auth/user-not-found') errorMsg = "Email not found. Please sign up first.";
+    if (err.code === 'auth/wrong-password') errorMsg = "Incorrect password.";
+    if (err.code === 'auth/email-already-in-use') errorMsg = "Email already registered. Please sign in.";
+    if (err.code === 'auth/weak-password') errorMsg = "Password must be at least 6 characters.";
+    showAuthError(errorMsg);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalBtnText;
+  }
+}
+
+// Google Sign-in
+async function handleGoogleSignIn() {
+  if (!auth) {
+    showAuthError("Firebase not initialized. Please refresh the page.");
+    return;
+  }
+  
+  const googleBtn = document.getElementById('googleSignInBtn');
+  if (googleBtn) googleBtn.disabled = true;
+  
+  try {
+    // Check if it's a new signup (not just sign-in) by checking user limit
+    // For Google Sign-in, we'll check the limit to prevent new users from joining
+    const isSignUpTab = document.getElementById('tabSignUp').classList.contains('active');
+    if (isSignUpTab) {
+      const canSignUp = await checkAndIncrementUserCount();
+      if (!canSignUp) {
+        showAuthError("Sorry, we don't have any slots available. Already 50 users have joined with us!");
+        return;
+      }
+    }
+    
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    showToast(`Welcome, ${result.user.displayName || result.user.email}!`);
+  } catch (err) {
+    console.error("Google sign-in error:", err);
+    if (err.code !== 'auth/popup-closed-by-user') {
+      showAuthError("Google sign-in failed. Please try again.");
+    }
+  } finally {
+    if (googleBtn) googleBtn.disabled = false;
+  }
+}
+
+// Sign Out
+async function handleSignOut() {
+  if (!auth) return;
+  try {
+    await signOut(auth);
+    showToast("Signed out successfully.");
+    currentUser = null;
+    state = { daily: [], weekly: [], project: [], reviews: [], lastActiveDate: new Date().toISOString().slice(0, 10) };
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  } catch (err) {
+    console.error("Sign out error:", err);
+    showAuthError("Sign out failed: " + err.message);
+  }
+}
+
+// Continue as guest (for backward compatibility, but not exposed to user)
+function continueAsGuest() {
+  loadLocalState();
+  runMigrations();
+  document.getElementById('authOverlay').style.display = 'none';
+  render();
+  checkDailyRollover();
+}
+
+// Global scope bindings for inline HTML attributes
+window.addItem = addItem;
+window.toggle = toggle;
+window.toggleDoing = toggleDoing;
+window.removeItem = removeItem;
+window.toggleExpand = toggleExpand;
+window.promoteToDaily = promoteToDaily;
+window.addSubtask = addSubtask;
+window.toggleSubtask = toggleSubtask;
+window.deleteSubtask = deleteSubtask;
+window.promoteSubtaskToDaily = promoteSubtaskToDaily;
+window.toggleTimer = toggleTimer;
+window.resetTimer = resetTimer;
+window.saveReview = saveReview;
+window.downloadReviews = downloadReviews;
+window.handleSignOut = handleSignOut;
+window.continueAsGuest = continueAsGuest;
+window.switchAuthTab = switchAuthTab;
+window.handleAuthSubmit = handleAuthSubmit;
+window.handleGoogleSignIn = handleGoogleSignIn;
+window.startEdit = startEdit;
+window.startEditSubtask = startEditSubtask;
+
+// Init logic
+async function initApp() {
+  try {
+    const app = initializeApp(FIREBASE_CONFIG);
+    auth = getAuth(app);
+    
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+      })
+    });
+    
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      updateAuthUI(user);
+      
+      if (user) {
+        await loadStateFromFirestore(user.uid);
+      } else {
+        loadLocalState();
+        runMigrations();
+        document.getElementById('authOverlay').style.display = 'flex';
+        render();
+      }
+    });
+
+  } catch (err) {
+    console.error("Firebase init failed:", err);
+    showToast("Firebase initialization failed.");
+  }
+}
+
+// ──── Feedback Form Functions ────
+// (Defined in global script - see above)
+
+// Start
+initApp();
+</script>
+</body>
+</html>

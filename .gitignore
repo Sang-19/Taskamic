@@ -1,0 +1,192 @@
+# ========================================
+# Taskamic .gitignore
+# ========================================
+# This file tells Git which files to ignore
+# when committing to GitHub
+
+# ========================================
+# NODE.JS & NPM
+# ========================================
+node_modules/
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+dist/
+build/
+
+# ========================================
+# ENVIRONMENT VARIABLES
+# ========================================
+# NEVER commit .env file with credentials
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.test.local
+
+# Keep .env.example for reference
+# (This file should be committed with placeholder values)
+
+# ========================================
+# IDE & EDITOR
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# ========================================
+# OS FILES
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+*.log
+*.pot
+
+# ========================================
+# PYTHON (HTTP SERVER)
+# ========================================
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+.Python
+env/
+venv/
+.venv
+python-env/
+
+# ========================================
+# WINDOWS
+# ========================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========================================
+# MAC
+# ========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+*.dylib
+
+# ========================================
+# LINUX
+# ========================================
+.directory
+
+# ========================================
+# FIREBASE
+# ========================================
+.firebase/
+firebase-debug.log
+.firebaserc
+
+# ========================================
+# LOCAL STORAGE & CACHE
+# ========================================
+*.cache
+.cache/
+dist/
+build/
+.next/
+out/
+
+# ========================================
+# TEMPORARY FILES
+# ========================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+.#*
+#*#
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ========================================
+# DATABASE & LOGS
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/
+*.csv
+!daily_reviews.csv
+
+# ========================================
+# SECURITY - Never commit
+# ========================================
+.aws/
+.ssh/
+*.pem
+*.key
+*.keystore
+secrets.json
+credentials.json
+
+# ========================================
+# PROJECT SPECIFIC
+# ========================================
+# Local testing files
+test-data/
+debug/
+temp/
+scratch/
+.turbo/
+
+# ========================================
+# COVERAGE & TESTING
+# ========================================
+coverage/
+.nyc_output/
+*.lcov
+dist/
+
+# ========================================
+# OPTIONAL: Uncomment if you use these
+# ========================================
+# Uncomment the line below to ignore package-lock.json
+# package-lock.json
+
+# Uncomment to ignore yarn.lock
+# yarn.lock
+
+# Uncomment to ignore dist folder
+# dist/
+
+# Uncomment to ignore build folder
+# build/
+
+# ========================================
+# END OF .gitignore
+# ========================================

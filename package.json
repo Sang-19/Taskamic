@@ -1,0 +1,20 @@
+{
+  "name": "focusos-backend",
+  "version": "1.0.0",
+  "description": "FocusOS Backend - Feedback submission and Google Form integration",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js",
+    "dev": "node --watch backend.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
