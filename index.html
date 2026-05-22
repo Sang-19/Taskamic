@@ -1134,7 +1134,7 @@
     <textarea id="feedbackText" placeholder="Type your feedback here..." style="width: 100%; min-height: 150px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 12px 14px; font-family: inherit; font-size: 14px; resize: vertical; margin-bottom: 16px;" required></textarea>
     
     <div style="display: flex; gap: 10px;">
-      <button onclick="sendFeedback()" style="flex: 1; background: var(--accent); color: white; padding: 12px 20px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Send Feedback</button>
+      <button id="sendFeedbackBtn" onclick="sendFeedback()" style="flex: 1; background: var(--accent); color: white; padding: 12px 20px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Send Feedback</button>
       <button onclick="closeFeedbackForm()" style="flex: 1; background: var(--surface3); color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Cancel</button>
     </div>
   </div>
@@ -1218,7 +1218,7 @@ async function sendFeedback() {
   }
 
   const feedbackMessage = feedbackText.value;
-  const sendBtn = event.target;
+  const sendBtn = document.getElementById('sendFeedbackBtn');
   const originalText = sendBtn.textContent;
   
   // Show sending status
@@ -2375,6 +2375,7 @@ async function handleSignOut() {
     await signOut(auth);
     showToast("Signed out successfully.");
     currentUser = null;
+    window.currentUser = null;
     state = { daily: [], weekly: [], project: [], reviews: [], lastActiveDate: new Date().toISOString().slice(0, 10) };
     localStorage.removeItem(STORAGE_KEY);
     render();
@@ -2415,6 +2416,7 @@ window.handleAuthSubmit = handleAuthSubmit;
 window.handleGoogleSignIn = handleGoogleSignIn;
 window.startEdit = startEdit;
 window.startEditSubtask = startEditSubtask;
+window.showToast = showToast;
 
 // Init logic
 async function initApp() {
@@ -2430,6 +2432,7 @@ async function initApp() {
     
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
+      window.currentUser = user;
       updateAuthUI(user);
       
       if (user) {
