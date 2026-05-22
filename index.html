@@ -1274,7 +1274,7 @@ async function sendFeedback() {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const STORAGE_KEY = 'focusOS_clean';
@@ -2227,11 +2227,11 @@ function switchAuthTab(tab) {
   }
 }
 
-// Check and enforce user signup limit (50 users max)
-async function checkAndIncrementUserCount() {
+// Check user signup limit (50 users max) - Read-only (runs before auth)
+async function checkUserCountLimit() {
   if (!db) {
     console.error("Firestore not initialized");
-    return false;
+    return true; // Allow signup to proceed if db is not initialized
   }
   
   try {
@@ -2239,22 +2239,33 @@ async function checkAndIncrementUserCount() {
     const configRef = doc(db, 'config', 'userStats');
     const configDoc = await getDoc(configRef);
     
+    if (configDoc.exists()) {
+      const currentCount = configDoc.data().totalUsers || 0;
+      if (currentCount >= 50) {
+        return false; // Limit reached
+      }
+    }
+    return true; // Under limit, signup can proceed
+  } catch (err) {
+    console.error("Error checking user count limit:", err);
+    return true; // Allow signup to proceed if there's an error checking the limit (e.g. security rules)
+  }
+}
+
+// Increment user count - Write operation (runs after user is authenticated)
+async function incrementUserCount() {
+  if (!db) return;
+  try {
+    const configRef = doc(db, 'config', 'userStats');
+    const configDoc = await getDoc(configRef);
     let currentCount = 0;
     if (configDoc.exists()) {
       currentCount = configDoc.data().totalUsers || 0;
     }
-    
-    // Check if limit (50 users) is reached
-    if (currentCount >= 50) {
-      return false; // Limit reached
-    }
-    
-    // Increment the counter
     await setDoc(configRef, { totalUsers: currentCount + 1 }, { merge: true });
-    return true; // Success, user can sign up
+    console.log("Successfully updated user count slot. Total users:", currentCount + 1);
   } catch (err) {
-    console.error("Error checking user count:", err);
-    return true; // Allow signup if there's an error checking the limit
+    console.error("Error incrementing user count:", err);
   }
 }
 
@@ -2291,14 +2302,16 @@ async function handleAuthSubmit(e) {
       await signInWithEmailAndPassword(auth, email, password);
       showToast("Welcome back!");
     } else {
-      // Check user signup limit before creating account
-      const canSignUp = await checkAndIncrementUserCount();
+      // Check user signup limit (read-only) before creating account
+      const canSignUp = await checkUserCountLimit();
       if (!canSignUp) {
         showAuthError("Sorry, we don't have any slots available. Already 50 users have joined with us!");
         return;
       }
       
       await createUserWithEmailAndPassword(auth, email, password);
+      // Securely increment user count after successful signup
+      await incrementUserCount();
       showToast("Account created successfully!");
     }
   } catch (err) {
@@ -2326,19 +2339,24 @@ async function handleGoogleSignIn() {
   if (googleBtn) googleBtn.disabled = true;
   
   try {
-    // Check if it's a new signup (not just sign-in) by checking user limit
-    // For Google Sign-in, we'll check the limit to prevent new users from joining
-    const isSignUpTab = document.getElementById('tabSignUp').classList.contains('active');
-    if (isSignUpTab) {
-      const canSignUp = await checkAndIncrementUserCount();
-      if (!canSignUp) {
-        showAuthError("Sorry, we don't have any slots available. Already 50 users have joined with us!");
-        return;
-      }
-    }
-    
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
+    
+    // Check if this is a new Google signup
+    const additionalInfo = getAdditionalUserInfo(result);
+    if (additionalInfo && additionalInfo.isNewUser) {
+      const canSignUp = await checkUserCountLimit();
+      if (!canSignUp) {
+        showAuthError("Sorry, we don't have any slots available. Already 50 users have joined with us!");
+        // Delete the newly registered Google user and sign them out
+        await result.user.delete();
+        await signOut(auth);
+        return;
+      }
+      // Securely increment user count after successful signup
+      await incrementUserCount();
+    }
+    
     showToast(`Welcome, ${result.user.displayName || result.user.email}!`);
   } catch (err) {
     console.error("Google sign-in error:", err);
